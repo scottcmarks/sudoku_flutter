@@ -1,0 +1,27 @@
+// SudokuEngine.xcconfig — build settings for the C++ engine sources
+// Included by Debug.xcconfig and Release.xcconfig
+
+CLANG_CXX_LANGUAGE_STANDARD = c++17
+
+HEADER_SEARCH_PATHS = $(inherited) \
+    $(HOME)/SudokuX4/PlatformIndependent/Game \
+    $(HOME)/SudokuX4/PlatformIndependent/ConsoleGroups \
+    $(HOME)/Toolbox/PlatformIndependent \
+    $(HOME)/Toolbox/PlatformIndependent/Matrix \
+    $(HOME)/Toolbox/PlatformIndependent/Filenames \
+    $(HOME)/Toolbox/PlatformIndependent/zip/zipinput \
+    $(SRCROOT)/../../native
+
+OTHER_CPLUSPLUSFLAGS = $(inherited) \
+    -Wno-deprecated-declarations \
+    -Wno-reorder \
+    -Wno-unused-variable
+
+// WARNING_CFLAGS appends after -Wall so these suppressions take final precedence
+WARNING_CFLAGS = $(inherited) \
+    -Wno-missing-braces \
+    -Wno-vla-cxx-extension \
+    -Wno-unused-function
+
+// zlib is needed by zipinput.cpp (irregular group map decompression)
+OTHER_LDFLAGS = $(inherited) -lz
