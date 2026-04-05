@@ -25,7 +25,7 @@ VPATH = .:$(GAME):$(TOOLBOX):$(TOOLBOX)/Filenames:$(TOOLBOX)/zip/zipinput
 LDFLAGS = -lz -fsanitize=address
 
 OBJS = \
-    test_cli.o \
+    test_construct_puzzle_cli.o \
     sudoku_ffi.o \
     Puzzle_answer.o \
     Puzzle_bruteforce.o \
@@ -45,7 +45,7 @@ OBJS = \
     comb_util.o \
     utility.o
 
-TARGET = test_cli
+TARGET = test_construct_puzzle_cli
 
 .PHONY: all clean run
 
@@ -67,4 +67,4 @@ run: $(TARGET)
 	./$(TARGET)
 
 clean:
-	rm -f $(OBJS) $(TARGET)
+	rm -f $(OBJS) $(TARGET) test_cli.o test_cli
