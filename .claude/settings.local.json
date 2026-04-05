@@ -10,7 +10,11 @@
       "Bash(make:*)",
       "Read(//Users/scott/Toolbox/PlatformIndependent/**)",
       "Read(//Users/scott/SudokuX4/PlatformIndependent/**)",
-      "Bash(./test_cli:*)"
+      "Bash(./test_cli:*)",
+      "Bash(flutter analyze:*)",
+      "Bash(./test_irregular_cli:*)",
+      "Bash(SUDOKU_GROUP_MAPS_DIR=~/SudokuX4/PlatformIndependent/Resources/group_maps ./test_irregular_cli:*)",
+      "Bash(make test_timing_study:*)"
     ]
   }
 }

@@ -1,5 +1,31 @@
 # Change Log
 
+## 2026-04-05
+
+### Native / Irregular puzzle support
+
+- **`native/Filenames_cli.cpp`** — New CLI implementation of `get_full_filename` / `set_group_maps_dir`. Reads `SUDOKU_GROUP_MAPS_DIR` env var. Replaces Toolbox `Filenames.cpp` in CLI builds.
+- **`native/Filenames_impl.mm`** — Added no-op `set_group_maps_dir` stub for linker. NSBundle continues to handle path resolution.
+- **`native/sudoku_ffi.h/cpp`** — Added `sudoku_set_group_maps_dir()` FFI entry point.
+- **`native/XCODE_SETUP.md`** — Corrected: do NOT add `Filenames.cpp`; use `Filenames_impl.mm` instead.
+- **`native/Makefile`** — Added `test_irregular_cli` and `test_timing_study` targets; switched to `Filenames_cli.o`; added `timing` target (builds with -O3, no ASan).
+
+### Dart / FFI
+
+- **`lib/puzzle/puzzle_ffi.dart`** — Bound `sudoku_set_group_maps_dir`; exposed `setGroupMapsDir()`.
+- **`lib/main.dart`** — Calls `setGroupMapsDir` from `SUDOKU_GROUP_MAPS_DIR` env var at startup.
+
+### UI / Cell rendering
+
+- **`lib/theme/app_theme.dart`** — Group color palette changed to distinct blue/green/pink/tan (was near-identical creams).
+- **`lib/widgets/cell_widget.dart`** — Group-color backgrounds for all cells; italic user digits; checkerboard pattern when in small-mode with no candidates.
+- **`lib/widgets/puzzle_grid.dart`** — X diagonal overlay (`_XDiagonalPainter`) for xSudoku games; strokeWidth = gridSize/(3√2), semi-transparent warm gold.
+
+### CLI tools
+
+- **`native/test_irregular_cli.cpp`** — New CLI jig for irregular puzzle generation; prints group map + puzzle side by side.
+- **`native/test_timing_study.cpp`** — Generation timing study: all 4 types × 6 difficulties, difficulty-outer loop, per-cell fflush for live output. Overnight run pending.
+
 ## 2026-04-04
 
 ### Native / FFI bug fixes
