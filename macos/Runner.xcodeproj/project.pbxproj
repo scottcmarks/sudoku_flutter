@@ -28,7 +28,6 @@
 		33CC10F62044A3C60003C045 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 33CC10F42044A3C60003C045 /* MainMenu.xib */; };
 		33CC11132044BFA00003C045 /* MainFlutterWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 33CC11122044BFA00003C045 /* MainFlutterWindow.swift */; };
 		D2024F2B2F816EFB008237DD /* sudoku_ffi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2024F2A2F816EFB008237DD /* sudoku_ffi.cpp */; };
-		D2024F5A2F816EFB008237DD /* insertion_sort_impl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2024F592F816EFB008237DD /* insertion_sort_impl.cpp */; };
 		D2024F462F816F7E008237DD /* Puzzle_answer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2024F2D2F816F7B008237DD /* Puzzle_answer.cpp */; };
 		D2024F482F816F7E008237DD /* queue_sizes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2024F2F2F816F7B008237DD /* queue_sizes.cpp */; };
 		D2024F4B2F816F7E008237DD /* Puzzle_clues.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2024F322F816F7C008237DD /* Puzzle_clues.cpp */; };
@@ -40,13 +39,15 @@
 		D2024F522F816F7E008237DD /* GroupMap.cc in Sources */ = {isa = PBXBuildFile; fileRef = D2024F392F816F7C008237DD /* GroupMap.cc */; };
 		D2024F532F816F7E008237DD /* are_neighbors_array.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2024F3A2F816F7D008237DD /* are_neighbors_array.cpp */; };
 		D2024F582F816F7E008237DD /* Puzzle_bruteforce.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2024F3F2F816F7D008237DD /* Puzzle_bruteforce.cpp */; };
+		D2024F5A2F816EFB008237DD /* insertion_sort_impl.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2024F592F816EFB008237DD /* insertion_sort_impl.cpp */; };
 		D2024F5D2F816F7E008237DD /* sudoku_combinations.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2024F442F816F7E008237DD /* sudoku_combinations.cpp */; };
 		D2024F752F817220008237DD /* comb_util.c in Sources */ = {isa = PBXBuildFile; fileRef = D2024F742F817220008237DD /* comb_util.c */; };
 		D2024F772F81725E008237DD /* rand_utils.c in Sources */ = {isa = PBXBuildFile; fileRef = D2024F762F81725E008237DD /* rand_utils.c */; };
 		D2024F792F817292008237DD /* utility.c in Sources */ = {isa = PBXBuildFile; fileRef = D2024F782F817292008237DD /* utility.c */; };
 		D2024F7B2F8172B8008237DD /* Filenames_impl.mm in Sources */ = {isa = PBXBuildFile; fileRef = D2024F7A2F8172B8008237DD /* Filenames_impl.mm */; };
-		D2024F852F817500008237DD /* group_maps in Resources */ = {isa = PBXBuildFile; fileRef = D2024F842F817500008237DD /* group_maps */; };
 		D2024F7D2F8172D5008237DD /* zipinput.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2024F7C2F8172D5008237DD /* zipinput.cpp */; };
+		D2024F822F82207A008237DD /* Filenames.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D2024F812F82207A008237DD /* Filenames.cpp */; };
+		D2024F852F817500008237DD /* group_maps in Resources */ = {isa = PBXBuildFile; fileRef = D2024F842F817500008237DD /* group_maps */; };
 		D3780306D87EB6445D9E3CD1 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B8B58AC78280797CB08185E9 /* Pods_Runner.framework */; };
 		F3BEED24BE4606EDACE1BE17 /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8A0D3C41CCBE46BE7F16BEC8 /* Pods_RunnerTests.framework */; };
 /* End PBXBuildFile section */
@@ -121,7 +122,6 @@
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		B8B58AC78280797CB08185E9 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D2024F2A2F816EFB008237DD /* sudoku_ffi.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = sudoku_ffi.cpp; path = ../native/sudoku_ffi.cpp; sourceTree = "<group>"; };
-		D2024F592F816EFB008237DD /* insertion_sort_impl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = insertion_sort_impl.cpp; path = ../native/insertion_sort_impl.cpp; sourceTree = "<group>"; };
 		D2024F2C2F816F7B008237DD /* FourColorMap.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = FourColorMap.h; path = ../../SudokuX4/PlatformIndependent/Game/FourColorMap.h; sourceTree = "<group>"; };
 		D2024F2D2F816F7B008237DD /* Puzzle_answer.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Puzzle_answer.cpp; path = ../../SudokuX4/PlatformIndependent/Game/Puzzle_answer.cpp; sourceTree = "<group>"; };
 		D2024F2E2F816F7B008237DD /* debug_puzzle.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = debug_puzzle.h; path = ../../SudokuX4/PlatformIndependent/Game/debug_puzzle.h; sourceTree = "<group>"; };
@@ -147,6 +147,7 @@
 		D2024F422F816F7E008237DD /* queue_data.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = queue_data.h; path = ../../SudokuX4/PlatformIndependent/Game/queue_data.h; sourceTree = "<group>"; };
 		D2024F432F816F7E008237DD /* queue_sizes.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = queue_sizes.h; path = ../../SudokuX4/PlatformIndependent/Game/queue_sizes.h; sourceTree = "<group>"; };
 		D2024F442F816F7E008237DD /* sudoku_combinations.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = sudoku_combinations.cpp; path = ../../SudokuX4/PlatformIndependent/Game/sudoku_combinations.cpp; sourceTree = "<group>"; };
+		D2024F592F816EFB008237DD /* insertion_sort_impl.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = insertion_sort_impl.cpp; path = ../native/insertion_sort_impl.cpp; sourceTree = "<group>"; };
 		D2024F5E2F8170C7008237DD /* io.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = io.h; path = ../../SudokuX4/PlatformIndependent/ConsoleGroups/io.h; sourceTree = "<group>"; };
 		D2024F5F2F8170C8008237DD /* io.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = io.c; path = ../../SudokuX4/PlatformIndependent/ConsoleGroups/io.c; sourceTree = "<group>"; };
 		D2024F602F8170C8008237DD /* symmetry.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = symmetry.h; path = ../../SudokuX4/PlatformIndependent/ConsoleGroups/symmetry.h; sourceTree = "<group>"; };
@@ -160,8 +161,9 @@
 		D2024F762F81725E008237DD /* rand_utils.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = rand_utils.c; path = ../../Toolbox/PlatformIndependent/rand_utils.c; sourceTree = "<group>"; };
 		D2024F782F817292008237DD /* utility.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; name = utility.c; path = ../../Toolbox/PlatformIndependent/utility.c; sourceTree = "<group>"; };
 		D2024F7A2F8172B8008237DD /* Filenames_impl.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = Filenames_impl.mm; path = ../native/Filenames_impl.mm; sourceTree = "<group>"; };
-		D2024F842F817500008237DD /* group_maps */ = {isa = PBXFileReference; lastKnownFileType = folder; name = group_maps; path = Runner/group_maps; sourceTree = "<group>"; };
 		D2024F7C2F8172D5008237DD /* zipinput.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = zipinput.cpp; path = ../../Toolbox/PlatformIndependent/zip/zipinput/zipinput.cpp; sourceTree = "<group>"; };
+		D2024F812F82207A008237DD /* Filenames.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Filenames.cpp; path = ../../Toolbox/PlatformIndependent/Filenames/Filenames.cpp; sourceTree = "<group>"; };
+		D2024F842F817500008237DD /* group_maps */ = {isa = PBXFileReference; lastKnownFileType = folder; name = group_maps; path = Runner/group_maps; sourceTree = "<group>"; };
 		D2539E4D6F1E59BAFE564F9B /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
 		F433006DF3CCBCB3FA7AB200 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -208,6 +210,7 @@
 		33CC10E42044A3C60003C045 = {
 			isa = PBXGroup;
 			children = (
+				D2024F812F82207A008237DD /* Filenames.cpp */,
 				D2024F7C2F8172D5008237DD /* zipinput.cpp */,
 				D2024F7A2F8172B8008237DD /* Filenames_impl.mm */,
 				D2024F782F817292008237DD /* utility.c */,
@@ -313,7 +316,6 @@
 				D2539E4D6F1E59BAFE564F9B /* Pods-RunnerTests.release.xcconfig */,
 				2D8C01BF1851CD3089D011BC /* Pods-RunnerTests.profile.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -570,6 +572,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D2024F822F82207A008237DD /* Filenames.cpp in Sources */,
 				D2024F7D2F8172D5008237DD /* zipinput.cpp in Sources */,
 				D2024F7B2F8172B8008237DD /* Filenames_impl.mm in Sources */,
 				D2024F792F817292008237DD /* utility.c in Sources */,

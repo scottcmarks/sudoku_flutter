@@ -20,12 +20,11 @@ CFLAGS     = -g -O0 -fsanitize=address \
              -I$(TOOLBOX) \
              -I$(TOOLBOX)/Filenames
 
-VPATH = .:$(GAME):$(TOOLBOX):$(TOOLBOX)/Filenames:$(TOOLBOX)/zip/zipinput
+VPATH = .:$(GAME):$(TOOLBOX):$(TOOLBOX)/zip/zipinput
 
 LDFLAGS = -lz -fsanitize=address
 
-OBJS = \
-    test_construct_puzzle_cli.o \
+SHARED_OBJS = \
     sudoku_ffi.o \
     Puzzle_answer.o \
     Puzzle_bruteforce.o \
@@ -38,20 +37,23 @@ OBJS = \
     queue_sizes.o \
     GroupMap.o \
     FourColorMap.o \
-    Filenames.o \
+    Filenames_cli.o \
     zipinput.o \
     insertion_sort.o \
     rand_utils.o \
     comb_util.o \
     utility.o
 
-TARGET = test_construct_puzzle_cli
+TARGETS = test_construct_puzzle_cli test_irregular_cli
 
-.PHONY: all clean run
+.PHONY: all clean run run-irregular
 
-all: $(TARGET)
+all: $(TARGETS)
 
-$(TARGET): $(OBJS)
+test_construct_puzzle_cli: test_construct_puzzle_cli.o $(SHARED_OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+test_irregular_cli: test_irregular_cli.o $(SHARED_OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 %.o: %.cpp
@@ -63,8 +65,13 @@ $(TARGET): $(OBJS)
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-run: $(TARGET)
-	./$(TARGET)
+GROUP_MAPS_DIR ?= $(HOME)/SudokuX4/PlatformIndependent/Resources/group_maps
+
+run: test_construct_puzzle_cli
+	SUDOKU_GROUP_MAPS_DIR=$(GROUP_MAPS_DIR) ./test_construct_puzzle_cli
+
+run-irregular: test_irregular_cli
+	SUDOKU_GROUP_MAPS_DIR=$(GROUP_MAPS_DIR) ./test_irregular_cli
 
 clean:
-	rm -f $(OBJS) $(TARGET) test_cli.o test_cli
+	rm -f *.o $(TARGETS)

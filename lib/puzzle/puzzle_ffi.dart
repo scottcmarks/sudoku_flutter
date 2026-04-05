@@ -56,6 +56,9 @@ final class _SudokuCellNative extends Struct {
 // Native function typedefs
 // ---------------------------------------------------------------------------
 
+typedef _SetGroupMapsDirNative = Void Function(Pointer<Utf8>);
+typedef _SetGroupMapsDirDart  = void Function(Pointer<Utf8>);
+
 typedef _NewNative  = Pointer<Void> Function();
 typedef _FreeNative = Void         Function(Pointer<Void>);
 typedef _GenerateNative = Int32 Function(
@@ -102,6 +105,10 @@ typedef _RestartDart   = void Function(Pointer<Void>);
 // ---------------------------------------------------------------------------
 // Bound functions
 // ---------------------------------------------------------------------------
+
+final _sudokuSetGroupMapsDir = _lib
+    .lookup<NativeFunction<_SetGroupMapsDirNative>>('sudoku_set_group_maps_dir')
+    .asFunction<_SetGroupMapsDirDart>();
 
 final _sudokuNew = _lib
     .lookup<NativeFunction<_NewNative>>('sudoku_new')
@@ -170,6 +177,17 @@ final int _puzzleByteSize = _sudokuByteSize();
 // ---------------------------------------------------------------------------
 // Public Dart-friendly wrapper
 // ---------------------------------------------------------------------------
+
+/// Set the directory containing the group map .z files (rot_*.z, mir_*.z).
+/// Call once at app startup before generating any irregular puzzles.
+void setGroupMapsDir(String path) {
+  final ptr = path.toNativeUtf8();
+  try {
+    _sudokuSetGroupMapsDir(ptr);
+  } finally {
+    calloc.free(ptr);
+  }
+}
 
 /// Low-level wrapper around the native Puzzle handle.
 /// Higher-level game logic (undo/redo, state management) lives in PuzzleEngine.

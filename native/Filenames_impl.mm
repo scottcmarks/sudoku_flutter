@@ -11,6 +11,9 @@
 
 using namespace std;
 
+// No-op on macOS/iOS: NSBundle handles path resolution in get_full_filename.
+void set_group_maps_dir(const char *) {}
+
 string get_full_filename(const char *fname_no_ext, const char *ext)
 {
     NSString *fName      = @(fname_no_ext);

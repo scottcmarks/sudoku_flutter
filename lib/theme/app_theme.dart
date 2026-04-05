@@ -18,12 +18,12 @@ class AppTheme {
   static const Color keypadPress   = Color(0xFF8B7355);
   static const Color winGold       = Color(0xFFFFC200);
 
-  // 4-color map palette for irregular groups
+  // 4-color map palette for irregular group backgrounds
   static const List<Color> groupColors = [
-    Color(0xFFF0EAD8), // 0 = warm cream
-    Color(0xFFE8D5B0), // 1 = tan
-    Color(0xFFD8C8A0), // 2 = wheat
-    Color(0xFFE0D0B8), // 3 = sand
+    Color(0xFFBED4EC), // 0 = cornflower blue
+    Color(0xFFB8D4B4), // 1 = sage green
+    Color(0xFFEABCBC), // 2 = salmon pink
+    Color(0xFFE0D09C), // 3 = golden wheat
   ];
 
   static ThemeData get theme => ThemeData(

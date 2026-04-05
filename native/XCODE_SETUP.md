@@ -39,8 +39,10 @@ Also compile these files (from `~/Toolbox/PlatformIndependent/`):
 - `rand_utils.c`
 - `comb_util.c`
 - `utility.c`
-- `Filenames/Filenames.cpp`
 - `zip/zipinput/*.cpp` (for irregular group map loading)
+
+Do **not** add `Filenames/Filenames.cpp` — the app uses `native/Filenames_impl.mm`
+(NSBundle-based path resolution) instead.  The CLI Makefile uses `native/Filenames_cli.cpp`.
 
 ### 3. Add header search paths
 

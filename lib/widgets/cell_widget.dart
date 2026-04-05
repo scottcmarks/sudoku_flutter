@@ -61,8 +61,7 @@ class CellWidget extends StatelessWidget {
     if (isSelected)  return AppTheme.selectedCell;
     if (isSameDigit) return AppTheme.sameDigitCell;
     if (isNeighbor)  return AppTheme.neighborCell;
-    if (c.isClue)    return AppTheme.clueCell;
-    return AppTheme.bg;
+    return AppTheme.groupColors[engine.colorMap[c.group].clamp(0, 3)];
   }
 }
 
@@ -87,6 +86,7 @@ class _LargeDigitContent extends StatelessWidget {
           style: TextStyle(
             fontSize: 28,
             fontWeight: c.isClue ? FontWeight.w700 : FontWeight.w400,
+            fontStyle: c.isClue ? FontStyle.normal : FontStyle.italic,
             color: c.isClue
                 ? AppTheme.clueText
                 : isError
@@ -115,6 +115,13 @@ class _SmallDigitsContent extends StatelessWidget {
         itemBuilder: (_, i) {
           final digit = i + 1;
           final isCandidate = c.hasCandidate(digit);
+          // Checkerboard when flipped to small-mode but no candidates yet
+          if (c.elimBits == 0) {
+            final light = (i ~/ 3 + i % 3).isEven;
+            return Container(
+              color: light ? const Color(0xFFD0CCC4) : const Color(0xFFA8A49C),
+            );
+          }
           return Center(
             child: isCandidate
                 ? FittedBox(

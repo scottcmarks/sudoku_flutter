@@ -12,6 +12,7 @@
 // Adjust SUDOKU_ENGINE_PATH at build time, or set include paths via CMake/Xcode.
 #include "Puzzle.h"
 #include "GroupMap.h"
+#include "Filenames.h"
 
 #include <cstring>
 #include <cassert>
@@ -35,6 +36,14 @@ static UI_DIFFICULTY to_difficulty(SudokuDifficulty d) {
 }
 static UI_QUALITY to_quality(SudokuQuality q) {
     return static_cast<UI_QUALITY>(q);
+}
+
+// ---------------------------------------------------------------------------
+// Global initialisation
+// ---------------------------------------------------------------------------
+
+void sudoku_set_group_maps_dir(const char* path) {
+    set_group_maps_dir(path);
 }
 
 // ---------------------------------------------------------------------------

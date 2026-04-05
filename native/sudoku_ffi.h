@@ -83,6 +83,15 @@ void* sudoku_new(void);
 void  sudoku_free(void* handle);
 
 // ---------------------------------------------------------------------------
+// Global initialisation — call once at app startup before any sudoku_new()
+// ---------------------------------------------------------------------------
+
+// Set the directory that contains the group map .z files (rot_*.z, mir_*.z).
+// If not called, falls back to SUDOKU_GROUP_MAPS_DIR env var, then
+// /usr/share/sudoku/group_maps.
+void sudoku_set_group_maps_dir(const char* path);
+
+// ---------------------------------------------------------------------------
 // Generation  (blocking — call from a Dart isolate)
 // ---------------------------------------------------------------------------
 

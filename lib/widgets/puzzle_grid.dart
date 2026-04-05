@@ -1,7 +1,10 @@
 // puzzle_grid.dart — 9×9 grid of CellWidgets with outer border and group shading
 
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import '../puzzle/puzzle_engine.dart';
+import '../puzzle/puzzle_types.dart';
 import '../theme/app_theme.dart';
 import 'cell_widget.dart';
 
@@ -23,33 +26,70 @@ class PuzzleGrid extends StatelessWidget {
       ),
       child: AspectRatio(
         aspectRatio: 1,
-        child: GridView.builder(
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 9,
-          ),
-          itemCount: 81,
-          itemBuilder: (context, offset) {
-            final c = engine.cell(offset);
-            final isSelected  = offset == sel;
-            final isNeighbor  = !isSelected && sel >= 0 && engine.areNeighbors(offset, sel);
-            final isSameDigit = selDigit != null &&
-                selDigit > 0 &&
-                !isSelected &&
-                (c?.userAnswer == selDigit || (c?.isClue == true && c?.solution == selDigit));
+        child: Stack(
+          children: [
+            GridView.builder(
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 9,
+              ),
+              itemCount: 81,
+              itemBuilder: (context, offset) {
+                final c = engine.cell(offset);
+                final isSelected  = offset == sel;
+                final isNeighbor  = !isSelected && sel >= 0 && engine.areNeighbors(offset, sel);
+                final isSameDigit = selDigit != null &&
+                    selDigit > 0 &&
+                    !isSelected &&
+                    (c?.userAnswer == selDigit || (c?.isClue == true && c?.solution == selDigit));
 
-            return CellWidget(
-              offset:     offset,
-              engine:     engine,
-              isSelected:  isSelected,
-              isNeighbor:  isNeighbor,
-              isSameDigit: isSameDigit,
-              showErrors:  engine.checkAnswer,
-              onTap:      () => engine.selectCell(offset),
-            );
-          },
+                return CellWidget(
+                  offset:     offset,
+                  engine:     engine,
+                  isSelected:  isSelected,
+                  isNeighbor:  isNeighbor,
+                  isSameDigit: isSameDigit,
+                  showErrors:  engine.checkAnswer,
+                  onTap:      () => engine.selectCell(offset),
+                );
+              },
+            ),
+            if (engine.lastAdjType == SudokuAdjType.xSudoku)
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: CustomPaint(painter: _XDiagonalPainter()),
+                ),
+              ),
+          ],
         ),
       ),
     );
   }
+}
+
+// ---------------------------------------------------------------------------
+// X diagonal overlay — drawn for xSudoku adjacency games
+// ---------------------------------------------------------------------------
+
+class _XDiagonalPainter extends CustomPainter {
+  const _XDiagonalPainter();
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // Swath is 1/3 the board width projected onto each axis.
+    // For a 45° diagonal: perpendicular strokeWidth = (W/3) * sin(45°) = W/(3√2).
+    final paint = Paint()
+      ..color = const Color(0x30C89040) // semi-transparent warm gold
+      ..strokeWidth = size.width / (3 * math.sqrt2)
+      ..strokeCap = StrokeCap.butt
+      ..style = PaintingStyle.stroke;
+
+    // Main diagonal: top-left → bottom-right
+    canvas.drawLine(Offset.zero, Offset(size.width, size.height), paint);
+    // Anti-diagonal: top-right → bottom-left
+    canvas.drawLine(Offset(size.width, 0), Offset(0, size.height), paint);
+  }
+
+  @override
+  bool shouldRepaint(_XDiagonalPainter old) => false;
 }
