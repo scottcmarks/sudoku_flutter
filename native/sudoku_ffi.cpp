@@ -258,7 +258,7 @@ int sudoku_distance(void* handle) {
 
 void sudoku_maxed_digits(void* handle, int maxed[10]) {
     bool bools[10] = {};
-    P(handle)->maxed_digits(bools + 1); // engine uses 1-indexed; bools[0] unused
+    P(handle)->maxed_digits(bools);     // engine writes indices 1..9
     for (int i = 0; i <= 9; i++)
         maxed[i] = bools[i] ? 1 : 0;
 }
