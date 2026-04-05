@@ -5,7 +5,12 @@
       "Bash(git remote:*)",
       "Bash(git push:*)",
       "Bash(git:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(ls:*)",
+      "Bash(make:*)",
+      "Read(//Users/scott/Toolbox/PlatformIndependent/**)",
+      "Read(//Users/scott/SudokuX4/PlatformIndependent/**)",
+      "Bash(./test_cli:*)"
     ]
   }
 }

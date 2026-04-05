@@ -43,3 +43,9 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# native/ build artifacts
+native/*.o
+native/test_construct_puzzle_cli
+native/#*#
+native/.#*
