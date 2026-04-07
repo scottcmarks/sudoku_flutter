@@ -123,6 +123,9 @@ int sudoku_generate(void*          handle,
 
     fprintf(stderr, "sudoku_generate: make_ready_for_UI\n");
     p->make_ready_for_UI();
+    // Re-establish are_neighbors_array for UI use; construct_puzzle freed it.
+    // The Puzzle destructor (sudoku_free) will clean it up.
+    p->define_are_neighbors_array();
     fprintf(stderr, "sudoku_generate: done\n");
     return 1;
 }
@@ -288,6 +291,12 @@ void sudoku_get_puzzle_bytes(void* handle, uint8_t* buf) {
 void sudoku_set_puzzle_bytes(void* handle, const uint8_t* buf) {
     Puzzle* p = P(handle);
     memcpy(p->puzzle, buf, sizeof(PUZZLE));
+}
+
+void sudoku_setup_loaded(void* handle, SudokuMapType mapType, SudokuAdjType adjType) {
+    Puzzle* p = P(handle);
+    p->set_types(to_map_type(mapType), to_adj_type(adjType));
+    p->define_are_neighbors_array();
 }
 
 // ---------------------------------------------------------------------------

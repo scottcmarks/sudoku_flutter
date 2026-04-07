@@ -89,6 +89,7 @@ class _AlbumScreenState extends State<AlbumScreen> {
     final engine = context.read<PuzzleEngine>();
     final ffi = PuzzleFFI();
     ffi.restoreBytes(game.puzzleBytes);
+    ffi.setupLoaded(game.mapType, game.adjType);
     engine.lastMapType    = game.mapType;
     engine.lastAdjType    = game.adjType;
     engine.lastDifficulty = game.difficulty;

@@ -18,7 +18,9 @@
       "WebSearch",
       "WebFetch(domain:opensource.apple.com)",
       "Bash(gh api:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(brew search:*)",
+      "Bash(flutter run:*)"
     ]
   }
 }

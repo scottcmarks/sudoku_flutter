@@ -79,6 +79,7 @@ typedef _MaxedNative       = Void  Function(Pointer<Void>, Pointer<Int32>);
 typedef _ByteSizeNative    = Int32 Function();
 typedef _GetBytesNative    = Void  Function(Pointer<Void>, Pointer<Uint8>);
 typedef _SetBytesNative    = Void  Function(Pointer<Void>, Pointer<Uint8>);
+typedef _SetupLoadedNative = Void  Function(Pointer<Void>, Int32, Int32);
 typedef _RestartNative     = Void  Function(Pointer<Void>);
 
 // Dart-callable typedefs
@@ -100,6 +101,7 @@ typedef _MaxedDart     = void Function(Pointer<Void>, Pointer<Int32>);
 typedef _ByteSizeDart  = int  Function();
 typedef _GetBytesDart  = void Function(Pointer<Void>, Pointer<Uint8>);
 typedef _SetBytesDart  = void Function(Pointer<Void>, Pointer<Uint8>);
+typedef _SetupLoadedDart = void Function(Pointer<Void>, int, int);
 typedef _RestartDart   = void Function(Pointer<Void>);
 
 // ---------------------------------------------------------------------------
@@ -167,6 +169,9 @@ final _sudokuGetBytes = _lib
 final _sudokuSetBytes = _lib
     .lookup<NativeFunction<_SetBytesNative>>('sudoku_set_puzzle_bytes')
     .asFunction<_SetBytesDart>();
+final _sudokuSetupLoaded = _lib
+    .lookup<NativeFunction<_SetupLoadedNative>>('sudoku_setup_loaded')
+    .asFunction<_SetupLoadedDart>();
 final _sudokuRestart = _lib
     .lookup<NativeFunction<_RestartNative>>('sudoku_restart')
     .asFunction<_RestartDart>();
@@ -314,6 +319,12 @@ class PuzzleFFI {
     } finally {
       calloc.free(ptr);
     }
+  }
+
+  /// After restoreBytes(), call this to set adjacency type and rebuild the
+  /// are_neighbors_array needed for cell-highlight queries.
+  void setupLoaded(SudokuMapType mapType, SudokuAdjType adjType) {
+    _sudokuSetupLoaded(_handle, mapType.value, adjType.value);
   }
 
   void restart() => _sudokuRestart(_handle);

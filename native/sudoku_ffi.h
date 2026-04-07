@@ -177,6 +177,11 @@ void sudoku_get_puzzle_bytes(void* handle, uint8_t* buf);
 // Restore PUZZLE bytes from `buf`.
 void sudoku_set_puzzle_bytes(void* handle, const uint8_t* buf);
 
+// After sudoku_set_puzzle_bytes, call this to set adjacency type and build
+// the are_neighbors_array needed for cell-highlight queries.
+// mapType / adjType must match the puzzle that was originally generated.
+void sudoku_setup_loaded(void* handle, SudokuMapType mapType, SudokuAdjType adjType);
+
 // ---------------------------------------------------------------------------
 // Restart
 // ---------------------------------------------------------------------------
