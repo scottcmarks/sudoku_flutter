@@ -118,7 +118,7 @@ int sudoku_generate(void*          handle,
 
     fprintf(stderr, "sudoku_generate: construct_puzzle\n");
     int result = p->construct_puzzle(to_quality(quality), mt);
-    if (result == 0) { fprintf(stderr, "construct_puzzle failed\n"); return 0; }
+    if (result <= 0) { fprintf(stderr, "construct_puzzle failed\n"); return 0; }  // scm -- s/==0/<=0/
     if (p->cancelPuzzle) return 0;
 
     fprintf(stderr, "sudoku_generate: make_ready_for_UI\n");

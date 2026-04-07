@@ -1,5 +1,61 @@
 # Change Log
 
+## 2026-04-07
+
+### CLI tools — test_one_cli, FAILED timing, bug fixes, documentation
+
+- **`native/test_one_cli.cpp`** — New single-puzzle CLI: `./test_one_cli <difficulty> <type> <seed>`.
+  Same seedable RNG shadow as timing study. Prints elapsed time + grid on success;
+  prints `seed=X Yms FAILED` to stdout (plus stderr message) on failure.
+  Run with `MallocNanoZone=0 SUDOKU_GROUP_MAPS_DIR=... ./test_one_cli Easy Regular 2347620152`.
+
+- **`native/test_timing_study.cpp`** — FAILED lines now include elapsed time (`%7dms  FAILED`).
+  Previously timing was omitted, making it impossible to know how long a failed generation ran.
+
+- **`native/sudoku_ffi.cpp`** — Bug fix: `if (result == 0)` → `if (result <= 0)`.
+  `make_puzzle()` never returns 0; it returns -3 (all iterations produced rating=0, puzzle has too
+  many clues) or -4 (cancelled with insufficient result) on failure. The `== 0` check let both
+  failure codes slip through to `make_ready_for_UI()`, potentially queuing an over-clued puzzle
+  that looks like the requested difficulty but is actually easier.
+
+- **`native/Makefile`** — Added `test_one_cli` target; added `-MMD -MP` for header dependency
+  tracking (`.d` files); added `print_puzzle.h` as explicit dep of `timing` target; removed
+  `2>/dev/null` from timing run line so tracing appears.
+
+- **`PUZZLE_GENERATION.md`** — New documentation file at project root. Describes all five nested
+  generation levels (construct_solution recursive fill → make_puzzle 100-iteration loop →
+  make_solvable_puzzle while-loop → remove_clues iteration → solve/brute_force recursive DFS),
+  group map selection, Quickie Irregular variance explanation, and all solving techniques
+  (ELIMINATION through BRUTE_FORCE) with plain-English descriptions.
+
+- **`~/SudokuX4/PlatformIndependent/Game/GroupMap.cc`** *(Game repo)* — Added stderr tracing:
+  `GroupMap: file=mir03 mapNumber=4721/10000`.
+
+- **`~/SudokuX4/PlatformIndependent/Game/Puzzle_clues.cpp`** *(Game repo)* — Added stderr tracing:
+  `make_puzzle: itries=97/100 rating=42 nclues=33`.
+
+## 2026-04-06
+
+### CLI tools — grid renderer, seedable RNG, timeout
+
+- **`native/print_puzzle.h`** — New shared header-only Unicode box-drawing renderer.
+  `print_puzzle(void* h, bool is_x)` draws group boundaries as heavy lines and
+  intra-group borders as light lines; works for both regular and irregular puzzles.
+  For X-sudoku, marks the 8 interior diagonal corner intersections with `'X'`.
+  Full `pp_box_char()` lookup handles all mixed heavy/light Unicode box-drawing combinations.
+
+- **`native/test_construct_puzzle_cli.cpp`** — Replaced ad-hoc grid loop with `print_puzzle()`.
+
+- **`native/test_irregular_cli.cpp`** — Replaced side-by-side group/digit text output with `print_puzzle()`.
+
+- **`native/test_timing_study.cpp`** — Three improvements:
+  1. **Seedable RNG**: `arc4random_uniform()` shadowed with `rand()`-based wrapper;
+     each run seeded from `steady_clock::now() & 0xFFFFFFFF` (nanosecond resolution);
+     seed recorded in output for potential reproduction.
+  2. **Per-puzzle timeout**: 1200 seconds via `std::async` + `sudoku_cancel()`;
+     timed-out entries print `*** TIMED OUT ***` instead of a grid.
+  3. **Grid output**: each successful generation prints the puzzle grid below its timing line.
+
 ## 2026-04-05
 
 ### Native / Irregular puzzle support

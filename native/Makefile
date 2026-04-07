@@ -7,7 +7,7 @@ TOOLBOX    = $(HOME)/Toolbox/PlatformIndependent
 
 CXX        = clang++
 CC         = clang
-CXXFLAGS   = -std=c++17 -g -O0 -fsanitize=address \
+CXXFLAGS   = -std=c++17 -g -O0 -fsanitize=address -MMD -MP \
              -I$(GAME) \
              -I$(HOME)/SudokuX4/PlatformIndependent/ConsoleGroups \
              -I$(TOOLBOX) \
@@ -16,7 +16,7 @@ CXXFLAGS   = -std=c++17 -g -O0 -fsanitize=address \
              -I$(TOOLBOX)/zip/zipinput \
              -I$(TOOLBOX)/Yield \
              -I.
-CFLAGS     = -g -O0 -fsanitize=address \
+CFLAGS     = -g -O0 -fsanitize=address -MMD -MP \
              -I$(TOOLBOX) \
              -I$(TOOLBOX)/Filenames
 
@@ -44,7 +44,7 @@ SHARED_OBJS = \
     comb_util.o \
     utility.o
 
-TARGETS = test_construct_puzzle_cli test_irregular_cli test_timing_study
+TARGETS = test_construct_puzzle_cli test_irregular_cli test_timing_study test_one_cli
 
 .PHONY: all clean run run-irregular
 
@@ -57,6 +57,9 @@ test_irregular_cli: test_irregular_cli.o $(SHARED_OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 test_timing_study: test_timing_study.o $(SHARED_OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+test_one_cli: test_one_cli.o $(SHARED_OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 %.o: %.cpp
@@ -81,7 +84,7 @@ IFLAGS = -I$(GAME) \
          -I$(TOOLBOX) -I$(TOOLBOX)/Matrix -I$(TOOLBOX)/Filenames \
          -I$(TOOLBOX)/zip/zipinput -I$(TOOLBOX)/Yield -I.
 
-timing: test_timing_study.cpp
+timing: test_timing_study.cpp print_puzzle.h
 	$(CXX) -std=c++17 -O3 $(IFLAGS) -o test_timing_study.fast \
 	    test_timing_study.cpp sudoku_ffi.cpp \
 	    $(GAME)/Puzzle_answer.cpp $(GAME)/Puzzle_bruteforce.cpp \
@@ -94,7 +97,9 @@ timing: test_timing_study.cpp
 	    $(TOOLBOX)/insertion_sort.cpp \
 	    $(TOOLBOX)/rand_utils.c $(TOOLBOX)/comb_util.c $(TOOLBOX)/utility.c \
 	    -lz
-	SUDOKU_GROUP_MAPS_DIR=$(GROUP_MAPS_DIR) ./test_timing_study.fast 2>/dev/null
+	SUDOKU_GROUP_MAPS_DIR=$(GROUP_MAPS_DIR) ./test_timing_study.fast
 
 clean:
-	rm -f *.o $(TARGETS)
+	rm -f *.o *.d $(TARGETS)
+
+-include $(wildcard *.d)

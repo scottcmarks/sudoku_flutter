@@ -7,6 +7,7 @@
 //   quality:    0=asap 1=compromise 2=best (default 1)
 
 #include "sudoku_ffi.h"
+#include "print_puzzle.h"
 #include <cstdio>
 #include <cstdlib>
 
@@ -19,8 +20,6 @@ int main(int argc, char* argv[]) {
             adj, diff, qual);
 
     void* h = sudoku_new();
-    fprintf(stderr, "test_irregular_cli: handle=%p\n", h);
-
     int ok = sudoku_generate(h,
         (SudokuMapType)SUDOKU_MAP_IRREGULAR, (SudokuAdjType)adj,
         (SudokuDifficulty)diff, (SudokuQuality)qual);
@@ -31,27 +30,10 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    fprintf(stderr, "test_irregular_cli: generation succeeded\n");
+    fprintf(stderr, "test_irregular_cli: generation succeeded, distance=%d\n",
+            sudoku_distance(h));
 
-    // Print group map and grid side by side: group digit | clue digit
-    SudokuCell cell;
-    fprintf(stdout, "  Groups:           Puzzle:\n");
-    for (int row = 0; row < 9; row++) {
-        fprintf(stdout, "  ");
-        for (int col = 0; col < 9; col++) {
-            sudoku_get_cell(h, row * 9 + col, &cell);
-            fprintf(stdout, "%d", cell.group + 1);  // 1-indexed for readability
-        }
-        fprintf(stdout, "    ");
-        for (int col = 0; col < 9; col++) {
-            sudoku_get_cell(h, row * 9 + col, &cell);
-            fprintf(stdout, "%c", cell.mask ? ('0' + cell.solution) : '.');
-        }
-        fprintf(stdout, "\n");
-    }
-
-    int dist = sudoku_distance(h);
-    fprintf(stderr, "test_irregular_cli: distance=%d (cells to fill)\n", dist);
+    print_puzzle(h, adj == SUDOKU_ADJ_X);
 
     sudoku_free(h);
     return 0;
