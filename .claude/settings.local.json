@@ -14,7 +14,11 @@
       "Bash(flutter analyze:*)",
       "Bash(./test_irregular_cli:*)",
       "Bash(SUDOKU_GROUP_MAPS_DIR=~/SudokuX4/PlatformIndependent/Resources/group_maps ./test_irregular_cli:*)",
-      "Bash(make test_timing_study:*)"
+      "Bash(make test_timing_study:*)",
+      "WebSearch",
+      "WebFetch(domain:opensource.apple.com)",
+      "Bash(gh api:*)",
+      "Bash(echo:*)"
     ]
   }
 }
