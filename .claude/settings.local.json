@@ -20,7 +20,10 @@
       "Bash(gh api:*)",
       "Bash(echo:*)",
       "Bash(brew search:*)",
-      "Bash(flutter run:*)"
+      "Bash(flutter run:*)",
+      "Bash(xxd:*)",
+      "Bash(dart analyze:*)",
+      "Bash(grep:*)"
     ]
   }
 }
