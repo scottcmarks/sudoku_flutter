@@ -76,11 +76,13 @@ class _XDiagonalPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // Swath is 1/3 the board width projected onto each axis.
-    // For a 45° diagonal: perpendicular strokeWidth = (W/3) * sin(45°) = W/(3√2).
+    // Stroke width = cell diagonal = (W/9) * √2 so the band exactly covers
+    // the 9 diagonal cells without spilling into adjacent cells.
+    // clipRect trims the stroke ends at the grid boundary.
+    canvas.clipRect(Offset.zero & size);
     final paint = Paint()
       ..color = const Color(0x30C89040) // semi-transparent warm gold
-      ..strokeWidth = size.width / (3 * math.sqrt2)
+      ..strokeWidth = size.width * math.sqrt2 / 9
       ..strokeCap = StrokeCap.butt
       ..style = PaintingStyle.stroke;
 

@@ -57,11 +57,19 @@ class CellWidget extends StatelessWidget {
     );
   }
 
+  // Neutral target for dimming non-highlighted cells.
+  static const Color _dimTarget = Color(0xFFCCC8BB);
+
   Color _backgroundColor(CellData c) {
+    final groupColor = AppTheme.groupColors[engine.colorMap[c.group].clamp(0, 3)];
     if (isSelected)  return AppTheme.selectedCell;
     if (isSameDigit) return AppTheme.sameDigitCell;
-    if (isNeighbor)  return AppTheme.neighborCell;
-    return AppTheme.groupColors[engine.colorMap[c.group].clamp(0, 3)];
+    if (isNeighbor)  return groupColor; // full brightness — part of the highlight
+    // Dim cells that are outside the current selection's row/col/group.
+    if (engine.selectedOffset >= 0) {
+      return Color.lerp(groupColor, _dimTarget, 0.50)!;
+    }
+    return groupColor;
   }
 }
 
@@ -108,36 +116,39 @@ class _SmallDigitsContent extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(1),
-      child: GridView.builder(
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
-        itemCount: 9,
-        itemBuilder: (_, i) {
-          final digit = i + 1;
-          final isCandidate = c.hasCandidate(digit);
-          // Checkerboard when flipped to small-mode but no candidates yet
-          if (c.elimBits == 0) {
-            final light = (i ~/ 3 + i % 3).isEven;
-            return Container(
-              color: light ? const Color(0xFFD0CCC4) : const Color(0xFFA8A49C),
-            );
-          }
-          return Center(
-            child: isCandidate
-                ? FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      '$digit',
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: AppTheme.pencilText,
-                        fontWeight: FontWeight.w400,
+      child: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
+        child: GridView.builder(
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3),
+          itemCount: 9,
+          itemBuilder: (_, i) {
+            final digit = i + 1;
+            final isCandidate = c.hasCandidate(digit);
+            // Checkerboard when flipped to small-mode but no candidates yet
+            if (c.elimBits == 0) {
+              final light = (i ~/ 3 + i % 3).isEven;
+              return Container(
+                color: light ? const Color(0xFFD0CCC4) : const Color(0xFFA8A49C),
+              );
+            }
+            return Center(
+              child: isCandidate
+                  ? FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        '$digit',
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: AppTheme.pencilText,
+                          fontWeight: FontWeight.w400,
+                        ),
                       ),
-                    ),
-                  )
-                : const SizedBox.shrink(),
-          );
-        },
+                    )
+                  : const SizedBox.shrink(),
+            );
+          },
+        ),
       ),
     );
   }

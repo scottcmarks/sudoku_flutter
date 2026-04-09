@@ -26,6 +26,7 @@ LDFLAGS = -lz -fsanitize=address
 
 SHARED_OBJS = \
     sudoku_ffi.o \
+    queue_data.o \
     Puzzle_answer.o \
     Puzzle_bruteforce.o \
     Puzzle_clues.o \

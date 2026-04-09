@@ -6,13 +6,14 @@ import 'package:provider/provider.dart';
 import '../puzzle/puzzle_engine.dart';
 import '../puzzle/puzzle_types.dart';
 import '../theme/app_theme.dart';
-import '../widgets/keypad_widget.dart';
 import '../widgets/puzzle_grid.dart';
-import '../widgets/toolbar_widget.dart';
 import 'new_game_dialog.dart';
 
 class GameScreen extends StatelessWidget {
-  const GameScreen({super.key});
+  /// When navigating from a slideshow, pass the hero tag so the grid
+  /// animates seamlessly from/to its position in the slide.
+  final String? heroTag;
+  const GameScreen({super.key, this.heroTag});
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +34,7 @@ class GameScreen extends StatelessWidget {
           body: engine.generating
               ? const _GeneratingOverlay()
               : engine.isLoaded
-                  ? _GameBody(engine: engine)
+                  ? _GameBody(engine: engine, heroTag: heroTag)
                   : const _NoGame(),
         );
       },
@@ -51,7 +52,8 @@ class GameScreen extends StatelessWidget {
 
 class _GameBody extends StatelessWidget {
   final PuzzleEngine engine;
-  const _GameBody({required this.engine});
+  final String?      heroTag;
+  const _GameBody({required this.engine, this.heroTag});
 
   @override
   Widget build(BuildContext context) {
@@ -60,35 +62,36 @@ class _GameBody extends StatelessWidget {
         SafeArea(
           child: Column(
             children: [
-              // Distance indicator
-              _ProgressBar(engine: engine),
+              // Top bar: pen toggle | progress | new-game button
+              _TopBar(
+                engine:    engine,
+                onNewGame: () => _showNewGameDialog(context, engine),
+              ),
 
-              // Puzzle grid — takes most of the space
+              // Puzzle grid — takes remaining space
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Center(
                     child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 480, maxHeight: 480),
-                      child: PuzzleGrid(engine: engine),
+                      constraints: const BoxConstraints(maxWidth: 500),
+                      child: heroTag != null
+                          ? Hero(tag: heroTag!, child: PuzzleGrid(engine: engine))
+                          : PuzzleGrid(engine: engine),
                     ),
                   ),
                 ),
               ),
 
-              // Toolbar
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-                child: ToolbarWidget(
-                  engine:    engine,
-                  onNewGame: () => _showNewGameDialog(context, engine),
+              // Digit + action keypad — constrained to grid width
+              Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 500),
+                  child: _Keypad(
+                    engine:    engine,
+                    onNewGame: () => _showNewGameDialog(context, engine),
+                  ),
                 ),
-              ),
-
-              // Keypad
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16, top: 8),
-                child: KeypadWidget(engine: engine),
               ),
             ],
           ),
@@ -109,27 +112,112 @@ class _GameBody extends StatelessWidget {
   }
 }
 
-class _ProgressBar extends StatelessWidget {
+// ---------------------------------------------------------------------------
+// Top bar: [Pen toggle]  [────── progress ──────]  [New]
+// ---------------------------------------------------------------------------
+
+class _TopBar extends StatelessWidget {
   final PuzzleEngine engine;
-  const _ProgressBar({required this.engine});
+  final VoidCallback onNewGame;
+  const _TopBar({required this.engine, required this.onNewGame});
 
   @override
   Widget build(BuildContext context) {
-    final dist = engine.distance;
+    final sel         = engine.selectedOffset;
+    final inSmallMode = sel >= 0 ? (engine.cell(sel)?.smallMode ?? false) : false;
+    final dist        = engine.distance;
+
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       child: Row(
         children: [
-          Text(
-            dist == 0 ? 'Solved!' : '$dist left',
-            style: const TextStyle(fontSize: 13, color: AppTheme.clueText),
+          // Pen / Pencil toggle
+          GestureDetector(
+            onTap: () {
+              if (sel >= 0) engine.toggleSmallMode(sel);
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: inSmallMode ? AppTheme.pencilText : AppTheme.keypadBg,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppTheme.gridLine),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    inSmallMode ? Icons.edit : Icons.create,
+                    size: 14,
+                    color: inSmallMode ? Colors.white : AppTheme.clueText,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    inSmallMode ? 'Pencil' : 'Pen',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: inSmallMode ? Colors.white : AppTheme.clueText,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
+
           const SizedBox(width: 8),
+
+          // Progress bar
           Expanded(
-            child: LinearProgressIndicator(
-              value: dist == 0 ? 1.0 : 1.0 - dist / 81.0,
-              backgroundColor: AppTheme.keypadBg,
-              color: dist == 0 ? AppTheme.winGold : AppTheme.userText,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                LinearProgressIndicator(
+                  value: dist == 0 ? 1.0 : 1.0 - dist / 81.0,
+                  backgroundColor: AppTheme.keypadBg,
+                  color: dist == 0 ? AppTheme.winGold : AppTheme.userText,
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  dist == 0 ? 'Solved!' : '$dist left',
+                  style: const TextStyle(fontSize: 11, color: AppTheme.clueText),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(width: 8),
+
+          // New game button
+          GestureDetector(
+            onTap: engine.generating ? null : onNewGame,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+              decoration: BoxDecoration(
+                color: AppTheme.keypadBg,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: AppTheme.gridLine),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.refresh,
+                    size: 14,
+                    color: engine.generating ? AppTheme.gridLine : AppTheme.clueText,
+                  ),
+                  const SizedBox(width: 4),
+                  Text(
+                    'New',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: engine.generating ? AppTheme.gridLine : AppTheme.clueText,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -137,6 +225,192 @@ class _ProgressBar extends StatelessWidget {
     );
   }
 }
+
+// ---------------------------------------------------------------------------
+// Digit + action keypad
+// ---------------------------------------------------------------------------
+
+class _Keypad extends StatelessWidget {
+  final PuzzleEngine engine;
+  final VoidCallback onNewGame;
+  const _Keypad({required this.engine, required this.onNewGame});
+
+  @override
+  Widget build(BuildContext context) {
+    final maxed       = engine.maxedDigits;
+    final sel         = engine.selectedOffset;
+    final inSmallMode = sel >= 0 ? (engine.cell(sel)?.smallMode ?? false) : false;
+
+    return Padding(
+      padding: const EdgeInsets.only(left: 6, right: 6, bottom: 8, top: 4),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Single row of 9 digit chiclets
+          SizedBox(
+            height: 44,
+            child: Row(
+              children: [
+                for (int d = 1; d <= 9; d++) ...[
+                  if (d > 1) const SizedBox(width: 3),
+                  Expanded(
+                    child: _DigitKey(
+                      digit:     d,
+                      maxed:     maxed[d],
+                      smallMode: inSmallMode,
+                      onTap:     () => _onDigit(d, inSmallMode),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 4),
+
+          // Action row: undo | redo | assist | check | erase
+          SizedBox(
+            height: 40,
+            child: Row(
+              children: [
+                _ActionKey(
+                  icon:    Icons.undo,
+                  enabled: engine.hasUndo,
+                  onTap:   engine.undo,
+                ),
+                const SizedBox(width: 4),
+                _ActionKey(
+                  icon:    Icons.redo,
+                  enabled: engine.hasRedo,
+                  onTap:   engine.redo,
+                ),
+                const SizedBox(width: 4),
+                _ActionKey(
+                  icon:   Icons.auto_fix_high,
+                  active: engine.digitAssistant,
+                  onTap:  engine.toggleDigitAssistant,
+                ),
+                const SizedBox(width: 4),
+                _ActionKey(
+                  icon:   Icons.check_circle_outline,
+                  active: engine.checkAnswer,
+                  onTap:  engine.toggleCheckAnswer,
+                ),
+                const SizedBox(width: 4),
+                _ActionKey(
+                  icon:  Icons.backspace_outlined,
+                  onTap: () => _onErase(inSmallMode),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _onDigit(int digit, bool smallMode) {
+    final sel = engine.selectedOffset;
+    if (sel < 0) return;
+    final c = engine.cell(sel);
+    if (c == null || c.isClue) return;
+    if (smallMode) {
+      engine.toggleElimBit(sel, digit);
+    } else {
+      engine.setUserAnswer(sel, c.userAnswer == digit ? 0 : digit);
+    }
+  }
+
+  void _onErase(bool smallMode) {
+    final sel = engine.selectedOffset;
+    if (sel < 0) return;
+    final c = engine.cell(sel);
+    if (c == null || c.isClue) return;
+    if (smallMode) {
+      engine.toggleElimBit(sel, 0);
+    } else {
+      engine.clearUserAnswer(sel);
+    }
+  }
+}
+
+class _DigitKey extends StatelessWidget {
+  final int digit;
+  final bool maxed;
+  final bool smallMode;
+  final VoidCallback onTap;
+
+  const _DigitKey({
+    required this.digit,
+    required this.maxed,
+    required this.smallMode,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: maxed ? AppTheme.gridLine.withValues(alpha: 0.3) : AppTheme.keypadBg,
+      borderRadius: BorderRadius.circular(6),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(6),
+        onTap: maxed ? null : onTap,
+        child: Center(
+          child: Text(
+            '$digit',
+            style: TextStyle(
+              fontSize: smallMode ? 13 : 18,
+              fontWeight: FontWeight.w600,
+              color: maxed
+                  ? AppTheme.gridLine
+                  : smallMode
+                      ? AppTheme.pencilText
+                      : AppTheme.clueText,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ActionKey extends StatelessWidget {
+  final IconData icon;
+  final bool enabled;
+  final bool active;
+  final VoidCallback onTap;
+
+  const _ActionKey({
+    required this.icon,
+    this.enabled = true,
+    this.active = false,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = active
+        ? AppTheme.winGold
+        : enabled
+            ? AppTheme.clueText
+            : AppTheme.gridLine;
+    return Expanded(
+      child: Material(
+        color: AppTheme.keypadBg,
+        borderRadius: BorderRadius.circular(6),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(6),
+          onTap: enabled ? onTap : null,
+          child: Center(child: Icon(icon, color: color, size: 22)),
+        ),
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Supporting widgets
+// ---------------------------------------------------------------------------
 
 class _GeneratingOverlay extends StatelessWidget {
   const _GeneratingOverlay();

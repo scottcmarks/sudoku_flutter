@@ -163,6 +163,7 @@
 		D2024F7C2F8172D5008237DD /* zipinput.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = zipinput.cpp; path = ../../Toolbox/PlatformIndependent/zip/zipinput/zipinput.cpp; sourceTree = "<group>"; };
 		D2024F812F82207A008237DD /* Filenames.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Filenames.cpp; path = ../../Toolbox/PlatformIndependent/Filenames/Filenames.cpp; sourceTree = "<group>"; };
 		D2024F842F817500008237DD /* group_maps */ = {isa = PBXFileReference; lastKnownFileType = folder; name = group_maps; path = Runner/group_maps; sourceTree = "<group>"; };
+		D2024F892F85ABD3008237DD /* queue_data.cc */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = queue_data.cc; path = ../../SudokuX4/PlatformIndependent/Game/queue_data.cc; sourceTree = "<group>"; };
 		D2539E4D6F1E59BAFE564F9B /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
 		F433006DF3CCBCB3FA7AB200 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -209,6 +210,7 @@
 		33CC10E42044A3C60003C045 = {
 			isa = PBXGroup;
 			children = (
+				D2024F892F85ABD3008237DD /* queue_data.cc */,
 				D2024F812F82207A008237DD /* Filenames.cpp */,
 				D2024F7C2F8172D5008237DD /* zipinput.cpp */,
 				D2024F7A2F8172B8008237DD /* Filenames_impl.mm */,
@@ -571,13 +573,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D2024F512F816F7E008237DD /* queue_data.cc in Sources */,
 				D2024F7D2F8172D5008237DD /* zipinput.cpp in Sources */,
 				D2024F7B2F8172B8008237DD /* Filenames_impl.mm in Sources */,
 				D2024F792F817292008237DD /* utility.c in Sources */,
 				D2024F752F817220008237DD /* comb_util.c in Sources */,
 				D2024F772F81725E008237DD /* rand_utils.c in Sources */,
 				D2024F462F816F7E008237DD /* Puzzle_answer.cpp in Sources */,
-				D2024F512F816F7E008237DD /* queue_data.cc in Sources */,
 				D2024F582F816F7E008237DD /* Puzzle_bruteforce.cpp in Sources */,
 				D2024F4B2F816F7E008237DD /* Puzzle_clues.cpp in Sources */,
 				D2024F4E2F816F7E008237DD /* Puzzle_parameters.cpp in Sources */,

@@ -1,5 +1,61 @@
 # Change Log
 
+## 2026-04-08
+
+### Thumbnail rendering — full fidelity (`lib/models/thumbnail_cache.dart`)
+
+- Replaced the old simplified silhouette renderer (`_renderGame`) with a full-fidelity
+  512×512 render using a temporary `PuzzleFFI` handle:
+  - `restoreBytes` → 81 `getCell` calls → `dispose`
+  - Group-color backgrounds from `game.colorMap[cell.group]`
+  - Thin (1 px, `gridLine`) vs thick (3 px, `groupBorder`) borders by comparing adjacent `cell.group` values
+  - Clue digits (bold, `clueText`) and user-answer digits (italic, `userText`) via `ui.ParagraphBuilder`
+  - Does **not** call `setupLoaded` — cell group values are baked into puzzle bytes and sufficient for both border logic and color lookup
+- Added import `puzzle_ffi.dart`; removed now-unused `puzzle_types.dart` import
+- Added TODO comment flagging the 81-FFI-call cost if rendering ever feels sluggish
+
+### Bug fix — colorMap corrupted on undo/redo (`lib/puzzle/puzzle_engine.dart`)
+
+- `_rebuildCache()` was calling `colorMap = _ffi!.getColorMap()` on every call, including
+  those triggered by undo, redo, digit assistant, and restart.  After `restoreBytes` (undo)
+  without a subsequent `setupLoaded`, `getColorMap()` returns wrong data → group colors
+  scramble and can violate the 4-colour constraint.
+- Fix: removed `getColorMap()` from `_rebuildCache()` entirely.  `colorMap` is now set in
+  exactly two places: `generateNewPuzzle` (fresh generation, safe to call) and `loadFromFFI`
+  (explicit parameter from saved/queued data).
+
+### Bug fix — thumbnail stale after returning from game (`lib/models/thumbnail_cache.dart`, `lib/screens/slideshow_screen.dart`)
+
+- `SlideshowScreen._activateGame` now captures `ThumbnailCache` before its `await`, then
+  calls `thumbCache.evict(updated.uuid)` after saving so the next render picks up fresh bytes.
+- `CachedThumbnail.didUpdateWidget` re-resolves the image when `cache.imageFor(uuid) == null`
+  (cache was evicted), not only on UUID change.
+
+### Fix — macOS scrollbar on small-digit (pencil) cells (`lib/widgets/cell_widget.dart`)
+
+- Wrapped the 3×3 `GridView.builder` in `_SmallDigitsContent` with
+  `ScrollConfiguration(behavior: ..copyWith(scrollbars: false))` to suppress the macOS
+  hover-scrollbar that appeared when both digits 3 and 9 were visible.
+
+### Feature — exemplar ("selected picture") per collection (`lib/models/saved_game.dart`, multiple screens)
+
+- `SavedGameStore` now tracks `_exemplarUuids: Map<String, String>` (keyed `"mt_at_diff"`),
+  persisted to `exemplars.json` alongside game files.
+- New public API: `setExemplar`, `exemplarFor`, `typeExemplarFor`.
+- `delete` purges stale exemplar UUID for the deleted game.
+- `GameListScreen._openSlideshow` calls `setExemplar` on the tapped game before pushing.
+- `SlideshowScreen.onPageChanged` calls `setExemplar` as the user swipes.
+- `DifficultyScreen` uses `exemplarFor` instead of `games.firstOrNull`.
+- `HomeScreen` uses `typeExemplarFor` (first difficulty with an explicit exemplar for the type)
+  instead of `firstOrNull`.
+
+### UX — cell highlight changed to dimming model (`lib/widgets/cell_widget.dart`)
+
+- Old: selected cell blue, same-digit orange, neighbours light-blue tint.
+- New: selected cell retains blue tint; selected row/col/group neighbours and same-digit cells
+  show full group colour (100% brightness); all other cells blended 50% toward warm neutral
+  `Color(0xFFCCC8BB)` when any cell is selected.  Blend constant is `_dimTarget`.
+
 ## 2026-04-07
 
 ### CLI tools — test_one_cli, FAILED timing, bug fixes, documentation

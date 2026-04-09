@@ -81,6 +81,48 @@ class SavedGame {
 class SavedGameStore extends ChangeNotifier {
   final List<SavedGame> games = [];
 
+  /// Per-collection exemplar: keyed by "${mapType.value}_${adjType.value}_${difficulty.value}".
+  final Map<String, String> _exemplarUuids = {};
+
+  static String _key(SudokuMapType mt, SudokuAdjType at, SudokuDifficulty d) =>
+      '${mt.value}_${at.value}_${d.value}';
+
+  /// The "current" game for a given collection — used as the thumbnail on
+  /// DifficultyScreen rows.  Falls back to the most-recently-saved game.
+  SavedGame? exemplarFor(SudokuMapType mt, SudokuAdjType at, SudokuDifficulty d) {
+    final uuid = _exemplarUuids[_key(mt, at, d)];
+    if (uuid != null) {
+      final hit = games.where((g) => g.uuid == uuid).firstOrNull;
+      if (hit != null) return hit;
+    }
+    return games
+        .where((g) => g.mapType == mt && g.adjType == at && g.difficulty == d)
+        .firstOrNull;
+  }
+
+  /// The best single exemplar for a (mapType, adjType) pair — used on HomeScreen.
+  /// Returns the first difficulty that has an explicitly-set exemplar, or the
+  /// first saved game for that type if none is set.
+  SavedGame? typeExemplarFor(SudokuMapType mt, SudokuAdjType at) {
+    for (final d in SudokuDifficulty.values) {
+      final uuid = _exemplarUuids[_key(mt, at, d)];
+      if (uuid != null) {
+        final hit = games.where((g) => g.uuid == uuid).firstOrNull;
+        if (hit != null) return hit;
+      }
+    }
+    return games.where((g) => g.mapType == mt && g.adjType == at).firstOrNull;
+  }
+
+  /// Record that [uuid] is the "current" game for its collection.  Both the
+  /// grid view and the slideshow call this so they stay in sync.
+  void setExemplar(SudokuMapType mt, SudokuAdjType at, SudokuDifficulty d, String uuid) {
+    if (_exemplarUuids[_key(mt, at, d)] == uuid) return; // no-op
+    _exemplarUuids[_key(mt, at, d)] = uuid;
+    notifyListeners();
+    _saveExemplars(); // fire-and-forget
+  }
+
   Future<void> load() async {
     final dir = await _gamesDir();
     final files = dir.listSync().whereType<File>().where((f) => f.path.endsWith('.sx4json'));
@@ -94,7 +136,28 @@ class SavedGameStore extends ChangeNotifier {
       }
     }
     games.sort((a, b) => b.created.compareTo(a.created));
+    await _loadExemplars();
     notifyListeners();
+  }
+
+  Future<void> _loadExemplars() async {
+    try {
+      final dir  = await _gamesDir();
+      final file = File('${dir.path}/exemplars.json');
+      if (await file.exists()) {
+        final j = jsonDecode(await file.readAsString()) as Map<String, dynamic>;
+        _exemplarUuids.clear();
+        j.forEach((k, v) => _exemplarUuids[k] = v as String);
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _saveExemplars() async {
+    try {
+      final dir  = await _gamesDir();
+      final file = File('${dir.path}/exemplars.json');
+      await file.writeAsString(jsonEncode(_exemplarUuids));
+    } catch (_) {}
   }
 
   Future<void> save(SavedGame game) async {
@@ -115,6 +178,8 @@ class SavedGameStore extends ChangeNotifier {
     final file = File('${dir.path}/$uuid.sx4json');
     if (await file.exists()) await file.delete();
     games.removeWhere((g) => g.uuid == uuid);
+    _exemplarUuids.removeWhere((_, v) => v == uuid);
+    _saveExemplars();
     notifyListeners();
   }
 

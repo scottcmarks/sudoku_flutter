@@ -13,6 +13,8 @@
 #include "Puzzle.h"
 #include "GroupMap.h"
 #include "Filenames.h"
+#include "queue_data.h"
+#include "queue_sizes.h"
 
 #include <cstring>
 #include <cassert>
@@ -305,4 +307,60 @@ void sudoku_setup_loaded(void* handle, SudokuMapType mapType, SudokuAdjType adjT
 
 void sudoku_restart(void* handle) {
     P(handle)->start_or_restart_UI();
+}
+
+// ---------------------------------------------------------------------------
+// Queue loading
+// ---------------------------------------------------------------------------
+
+void* sudoku_queue_load(const uint8_t* inflated_bytes, size_t length) {
+    return const_cast<queue_data*>(queue_data::from_data(inflated_bytes, length));
+}
+
+void sudoku_queue_free(void* queue_handle) {
+    delete static_cast<const queue_data*>(queue_handle);
+}
+
+int sudoku_queue_game_count(void* queue_handle) {
+    // We need to expose ngames. Use get_data to measure it.
+    const queue_data* q = static_cast<const queue_data*>(queue_handle);
+    void* game_data      = nullptr;
+    void* sol_data       = nullptr;
+    void* puz_data       = nullptr;
+    size_t game_len = 0, sol_len = 0, puz_len = 0;
+    q->get_data(sol_data, sol_len, puz_data, puz_len, game_data, game_len);
+    return (int)(game_len / sizeof(PuzzleData));
+}
+
+int sudoku_queue_get_game(void* queue_handle, int index,
+                          uint8_t* puzzle_bytes,
+                          int      color_map[9],
+                          int*     map_type,
+                          int*     adj_type,
+                          int*     difficulty)
+{
+    const queue_data* q = static_cast<const queue_data*>(queue_handle);
+    int ngames = sudoku_queue_game_count(queue_handle);
+    if (index < 0 || index >= ngames) return 0;
+
+    void* game_data      = nullptr;
+    void* sol_data       = nullptr;
+    void* puz_data       = nullptr;
+    size_t game_len = 0, sol_len = 0, puz_len = 0;
+    q->get_data(sol_data, sol_len, puz_data, puz_len, game_data, game_len);
+
+    const PuzzleData* pd = static_cast<const PuzzleData*>(game_data) + index;
+    memcpy(puzzle_bytes, &pd->puzzle, sizeof(PUZZLE));
+    memcpy(color_map,   pd->iColorMap, 9 * sizeof(int));
+    *map_type   = (int)pd->mapType;
+    *adj_type   = (int)pd->adjacencyType;
+    *difficulty = (int)pd->difficulty;
+    return 1;
+}
+
+int sudoku_desired_queue_depth(int map_type, int adj_type, int difficulty) {
+    if (map_type   < 0 || map_type   >= N_MAP_TYPES)        return 3;
+    if (adj_type   < 0 || adj_type   >= N_ADJACENCY_TYPES)  return 3;
+    if (difficulty < 0 || difficulty >= N_UI_DIFFICULTIES)  return 3;
+    return desiredPuzzleQueueSize[map_type][adj_type][difficulty];
 }

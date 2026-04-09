@@ -25,7 +25,7 @@ In Xcode, select the **Runner** project → **Runner** target → **Build Phases
 - `queue_sizes.cpp`
 - `GroupMap.cc`
 - `FourColorMap.cc`
-- ~~`queue_data.cc`~~ — **omit**: this is the old NSOperationQueue batch serializer, not used by the Flutter path
+- `queue_data.cc` — **required**: provides `queue_data::from_data()` for loading bundled `.z` seed files
 
 **ConsoleGroups — do NOT add any `.c` files.**
 ConsoleGroups is a standalone offline tool that *generated* the compressed irregular
@@ -59,18 +59,27 @@ $(HOME)/Toolbox/PlatformIndependent/Yield
 $(SRCROOT)/../native
 ```
 
-### 4. Set C++ standard
+### 4. Puzzle generation timeout
+
+`~/SudokuX4/PlatformIndependent/Game/Puzzle_clues.cpp` defines:
+```cpp
+#define TIMEOUT_PER_PUZZLE 300  // 5 minutes (was 1190 = ~20 min)
+```
+This is intentional — background worker isolates should give up and retry after 5 minutes rather
+than blocking for 20 minutes.  Do not revert this change.
+
+### 5. Set C++ standard
 
 In **Build Settings** → **C++ Language Dialect**: `C++17`
 
-### 5. Suppress legacy warnings (optional)
+### 6. Suppress legacy warnings (optional)
 
 In **Build Settings** → **Other C++ Flags**:
 ```
 -Wno-deprecated-declarations -Wno-reorder
 ```
 
-### 6. Build and run
+### 7. Build and run
 
 ```bash
 flutter run -d macos   # macOS desktop
@@ -79,7 +88,7 @@ flutter run            # connected iOS device
 
 ## Troubleshooting
 
-- **Symbol not found: _sudoku_new** — a source file wasn't added to Compile Sources
+- **Symbol not found: _sudoku_new / _sudoku_queue_load** — a source file wasn't added to Compile Sources
 - **Header not found** — check Header Search Paths above
 - **Linker errors about C++ symbols** — make sure `.cpp` files compile as C++ (Xcode
   should detect this from extension, but check type in File Inspector if needed)

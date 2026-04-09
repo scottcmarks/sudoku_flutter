@@ -82,6 +82,14 @@ typedef _SetBytesNative    = Void  Function(Pointer<Void>, Pointer<Uint8>);
 typedef _SetupLoadedNative = Void  Function(Pointer<Void>, Int32, Int32);
 typedef _RestartNative     = Void  Function(Pointer<Void>);
 
+typedef _QueueLoadNative       = Pointer<Void> Function(Pointer<Uint8>, Uint64);
+typedef _QueueFreeNative       = Void          Function(Pointer<Void>);
+typedef _QueueGameCountNative  = Int32         Function(Pointer<Void>);
+typedef _QueueGetGameNative    = Int32         Function(
+    Pointer<Void>, Int32, Pointer<Uint8>, Pointer<Int32>,
+    Pointer<Int32>, Pointer<Int32>, Pointer<Int32>);
+typedef _QueueDesiredDepthNative = Int32 Function(Int32, Int32, Int32);
+
 // Dart-callable typedefs
 typedef _NewDart       = Pointer<Void> Function();
 typedef _FreeDart      = void          Function(Pointer<Void>);
@@ -103,6 +111,14 @@ typedef _GetBytesDart  = void Function(Pointer<Void>, Pointer<Uint8>);
 typedef _SetBytesDart  = void Function(Pointer<Void>, Pointer<Uint8>);
 typedef _SetupLoadedDart = void Function(Pointer<Void>, int, int);
 typedef _RestartDart   = void Function(Pointer<Void>);
+
+typedef _QueueLoadDart       = Pointer<Void> Function(Pointer<Uint8>, int);
+typedef _QueueFreeDart       = void          Function(Pointer<Void>);
+typedef _QueueGameCountDart  = int           Function(Pointer<Void>);
+typedef _QueueGetGameDart    = int           Function(
+    Pointer<Void>, int, Pointer<Uint8>, Pointer<Int32>,
+    Pointer<Int32>, Pointer<Int32>, Pointer<Int32>);
+typedef _QueueDesiredDepthDart = int Function(int, int, int);
 
 // ---------------------------------------------------------------------------
 // Bound functions
@@ -176,11 +192,84 @@ final _sudokuRestart = _lib
     .lookup<NativeFunction<_RestartNative>>('sudoku_restart')
     .asFunction<_RestartDart>();
 
+final _sudokuQueueLoad = _lib
+    .lookup<NativeFunction<_QueueLoadNative>>('sudoku_queue_load')
+    .asFunction<_QueueLoadDart>();
+final _sudokuQueueFree = _lib
+    .lookup<NativeFunction<_QueueFreeNative>>('sudoku_queue_free')
+    .asFunction<_QueueFreeDart>();
+final _sudokuQueueGameCount = _lib
+    .lookup<NativeFunction<_QueueGameCountNative>>('sudoku_queue_game_count')
+    .asFunction<_QueueGameCountDart>();
+final _sudokuQueueGetGame = _lib
+    .lookup<NativeFunction<_QueueGetGameNative>>('sudoku_queue_get_game')
+    .asFunction<_QueueGetGameDart>();
+final _sudokuDesiredQueueDepth = _lib
+    .lookup<NativeFunction<_QueueDesiredDepthNative>>('sudoku_desired_queue_depth')
+    .asFunction<_QueueDesiredDepthDart>();
+
 // Cache byte size once
 final int _puzzleByteSize = _sudokuByteSize();
 
 // ---------------------------------------------------------------------------
 // Public Dart-friendly wrapper
+// ---------------------------------------------------------------------------
+
+// ---------------------------------------------------------------------------
+// Queue loading API (module-level — no Puzzle handle involved)
+// ---------------------------------------------------------------------------
+
+/// Load a queue from already-inflated bytes. Returns opaque handle or null.
+Pointer<Void>? sudokuQueueLoad(Uint8List inflated) {
+  final ptr = calloc<Uint8>(inflated.length);
+  try {
+    for (int i = 0; i < inflated.length; i++) { ptr[i] = inflated[i]; }
+    final handle = _sudokuQueueLoad(ptr, inflated.length);
+    return handle.address == 0 ? null : handle;
+  } finally {
+    calloc.free(ptr);
+  }
+}
+
+void sudokuQueueFree(Pointer<Void> handle) => _sudokuQueueFree(handle);
+
+int sudokuQueueGameCount(Pointer<Void> handle) => _sudokuQueueGameCount(handle);
+
+/// Read one game entry; returns null on bad index.
+({Uint8List puzzleBytes, List<int> colorMap, int mapType, int adjType, int difficulty})?
+    sudokuQueueGetGame(Pointer<Void> handle, int index) {
+  final bytesPtr  = calloc<Uint8>(_puzzleByteSize);
+  final colorPtr  = calloc<Int32>(9);
+  final mapPtr    = calloc<Int32>();
+  final adjPtr    = calloc<Int32>();
+  final diffPtr   = calloc<Int32>();
+  try {
+    final ok = _sudokuQueueGetGame(
+        handle, index, bytesPtr, colorPtr, mapPtr, adjPtr, diffPtr);
+    if (ok == 0) return null;
+    final bytes = Uint8List(_puzzleByteSize);
+    for (int i = 0; i < _puzzleByteSize; i++) { bytes[i] = bytesPtr[i]; }
+    final colorMap = List.generate(9, (i) => colorPtr[i]);
+    return (
+      puzzleBytes: bytes,
+      colorMap:    colorMap,
+      mapType:     mapPtr.value,
+      adjType:     adjPtr.value,
+      difficulty:  diffPtr.value,
+    );
+  } finally {
+    calloc.free(bytesPtr);
+    calloc.free(colorPtr);
+    calloc.free(mapPtr);
+    calloc.free(adjPtr);
+    calloc.free(diffPtr);
+  }
+}
+
+int sudokuDesiredQueueDepth(int mapType, int adjType, int difficulty) =>
+    _sudokuDesiredQueueDepth(mapType, adjType, difficulty);
+
+// ---------------------------------------------------------------------------
 // ---------------------------------------------------------------------------
 
 /// Set the directory containing the group map .z files (rot_*.z, mir_*.z).
@@ -276,7 +365,7 @@ class PuzzleFFI {
     try {
       final raw = _sudokuGetState(_handle, ptr);
       if (digitCountsOut != null) {
-        for (int i = 0; i < 10; i++) digitCountsOut[i] = ptr[i];
+        for (int i = 0; i < 10; i++) { digitCountsOut[i] = ptr[i]; }
       }
       return SudokuPuzzleState.values[raw];
     } finally {
@@ -302,7 +391,7 @@ class PuzzleFFI {
     try {
       _sudokuGetBytes(_handle, ptr);
       final result = Uint8List(_puzzleByteSize);
-      for (int i = 0; i < _puzzleByteSize; i++) result[i] = ptr[i];
+      for (int i = 0; i < _puzzleByteSize; i++) { result[i] = ptr[i]; }
       return result;
     } finally {
       calloc.free(ptr);
@@ -314,7 +403,7 @@ class PuzzleFFI {
     assert(bytes.length == _puzzleByteSize);
     final ptr = calloc<Uint8>(_puzzleByteSize);
     try {
-      for (int i = 0; i < _puzzleByteSize; i++) ptr[i] = bytes[i];
+      for (int i = 0; i < _puzzleByteSize; i++) { ptr[i] = bytes[i]; }
       _sudokuSetBytes(_handle, ptr);
     } finally {
       calloc.free(ptr);

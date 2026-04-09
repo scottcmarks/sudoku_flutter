@@ -189,6 +189,35 @@ void sudoku_setup_loaded(void* handle, SudokuMapType mapType, SudokuAdjType adjT
 // Reset all user answers / pencil marks to their initial state.
 void sudoku_restart(void* handle);
 
+// ---------------------------------------------------------------------------
+// Queue loading (read pre-generated puzzles from a .z seed file)
+// ---------------------------------------------------------------------------
+
+// Load a queue from already-inflated (zlib-decompressed) bytes.
+// The caller inflates the .z asset on the Dart side before calling this.
+// Returns an opaque handle, or NULL on parse failure.  Free with sudoku_queue_free().
+void* sudoku_queue_load(const uint8_t* inflated_bytes, size_t length);
+
+// Free a queue handle returned by sudoku_queue_load().
+void  sudoku_queue_free(void* queue_handle);
+
+// Number of game entries in the queue.
+int   sudoku_queue_game_count(void* queue_handle);
+
+// Read one game entry by index (0 … game_count-1).
+// puzzle_bytes must be sudoku_puzzle_byte_size() bytes.
+// color_map must be int[9].
+// Returns 1 on success, 0 on bad index.
+int   sudoku_queue_get_game(void* queue_handle, int index,
+                            uint8_t* puzzle_bytes,
+                            int      color_map[9],
+                            int*     map_type,
+                            int*     adj_type,
+                            int*     difficulty);
+
+// Target queue depth for one (map_type, adj_type, difficulty) combination.
+int   sudoku_desired_queue_depth(int map_type, int adj_type, int difficulty);
+
 #ifdef __cplusplus
 }
 #endif

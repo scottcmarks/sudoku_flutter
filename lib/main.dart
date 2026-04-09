@@ -3,10 +3,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'models/app_settings.dart';
+import 'models/puzzle_queue_store.dart';
 import 'models/saved_game.dart';
+import 'models/thumbnail_cache.dart';
 import 'puzzle/puzzle_engine.dart';
 import 'puzzle/puzzle_ffi.dart';
-import 'screens/album_screen.dart';
+import 'screens/home_screen.dart';
 import 'theme/app_theme.dart';
 
 void main() {
@@ -37,11 +40,14 @@ class SudokuX4App extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => PuzzleEngine()),
         ChangeNotifierProvider(create: (_) => SavedGameStore()),
+        ChangeNotifierProvider(create: (_) => AppSettings()..load()),
+        ChangeNotifierProvider(create: (_) => PuzzleQueueStore()),
+        ChangeNotifierProvider(create: (_) => ThumbnailCache()),
       ],
       child: MaterialApp(
         title: 'Sudoku X4',
         theme: AppTheme.theme,
-        home: const AlbumScreen(),
+        home: const HomeScreen(),
         debugShowCheckedModeBanner: false,
       ),
     );

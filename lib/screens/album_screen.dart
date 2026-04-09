@@ -70,23 +70,27 @@ class _AlbumScreenState extends State<AlbumScreen> {
   }
 
   Future<void> _newGame(BuildContext context) async {
-    final engine = context.read<PuzzleEngine>();
+    final engine    = context.read<PuzzleEngine>();
+    final store     = context.read<SavedGameStore>();
+    final navigator = Navigator.of(context);
     final ok = await showDialog<bool>(
       context: context,
       builder: (_) => NewGameDialog(engine: engine),
     );
     if (!mounted) return;
     if (ok == true && engine.isLoaded) {
-      await Navigator.of(context).push(
+      await navigator.push(
         MaterialPageRoute(builder: (_) => const GameScreen()),
       );
       if (!mounted) return;
-      _saveCurrentGame(context, engine);
+      _saveCurrentGame(store, engine);
     }
   }
 
   Future<void> _openGame(BuildContext context, SavedGame game) async {
-    final engine = context.read<PuzzleEngine>();
+    final engine    = context.read<PuzzleEngine>();
+    final store     = context.read<SavedGameStore>();
+    final navigator = Navigator.of(context);
     final ffi = PuzzleFFI();
     ffi.restoreBytes(game.puzzleBytes);
     ffi.setupLoaded(game.mapType, game.adjType);
@@ -95,16 +99,15 @@ class _AlbumScreenState extends State<AlbumScreen> {
     engine.lastDifficulty = game.difficulty;
     engine.loadFromFFI(ffi, colorMap: game.colorMap);
 
-    await Navigator.of(context).push(
+    await navigator.push(
       MaterialPageRoute(builder: (_) => const GameScreen()),
     );
     if (!mounted) return;
-    _saveCurrentGame(context, engine);
+    _saveCurrentGame(store, engine);
   }
 
-  void _saveCurrentGame(BuildContext context, PuzzleEngine engine) {
+  void _saveCurrentGame(SavedGameStore store, PuzzleEngine engine) {
     if (!engine.isLoaded) return;
-    final store = context.read<SavedGameStore>();
     final bytes = engine.snapshotBytes();
     if (bytes == null) return;
     final game = SavedGame(

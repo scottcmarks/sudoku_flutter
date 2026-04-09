@@ -98,6 +98,7 @@ class PuzzleEngine extends ChangeNotifier {
       checkAnswer     = false;
       userHasWon      = false;
       _rebuildCache();
+      colorMap = _ffi!.getColorMap(); // safe: generate() sets up group data
     }
 
     generating = false;
@@ -151,7 +152,9 @@ class PuzzleEngine extends ChangeNotifier {
     for (int i = 0; i < 81; i++) {
       _cells[i] = _ffi!.getCell(i);
     }
-    colorMap = _ffi!.getColorMap();
+    // colorMap is NOT re-fetched here — it never changes during gameplay and
+    // getColorMap() requires setupLoaded() to have been called first.  It is
+    // set exactly once, via the explicit colorMap parameter in loadFromFFI().
   }
 
   // ---------------------------------------------------------------------------
